@@ -1,3 +1,5 @@
+require('../models')
+
 const request = require('supertest');
 const app = require('../app');
 
@@ -33,6 +35,11 @@ test("GET -> BASE_URL, should return statusCode 200, res.body.length === 1", asy
         expect(res.body).toBeDefined()
         expect(res.body).toHaveLength(1)
         // expect(res.body.length).toBe(1)
+
+        // console.log(res.body)
+
+        expect(res.body[0].courses).toBeDefined()
+        expect(res.body[0].courses).toHaveLength(0)
 })
 
     // GET (getOne)
@@ -45,12 +52,19 @@ test("GET -> BASE_URL/studentId, should return statusCode 200, res.body.firstNam
         expect(res.body).toBeDefined()
         expect(res.body.firstName).toBe(student.firstName)
 
+        // console.log(res.body)
+
+        expect(res.body.courses).toBeDefined()
+        expect(res.body.courses).toHaveLength(0)
 })
 
     // PUT (Update)
 test("PUT -> BASE_URL/studentId, should return statusCode 200, res.body.firstName === studentUpdate.firstName", async() => {
     const studentUpdate = {
-        firstName: "Patroclo"
+        firstName: "Patroclo",
+        lastName: "Areyano",
+        birthday: "2020-02-02",
+        program: "Strategic"
     }
 
     const res = await request(app)
@@ -60,6 +74,9 @@ test("PUT -> BASE_URL/studentId, should return statusCode 200, res.body.firstNam
         expect(res.status).toBe(200)
         expect(res.body).toBeDefined()
         expect(res.body.firstName).toBe(studentUpdate.firstName)
+        expect(res.body.lastName).toBe(studentUpdate.lastName)
+        expect(res.body.birthday).toBe(studentUpdate.birthday)
+        expect(res.body.program).toBe(studentUpdate.program)
 })
 
     // DELETE (Delete)

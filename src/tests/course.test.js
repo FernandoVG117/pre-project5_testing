@@ -1,5 +1,8 @@
+require('../models')
+
 const request = require('supertest');
 const app = require('../app');
+const Student = require('../models/Student');
 
 let courseId
 
@@ -31,6 +34,11 @@ test("GET -> BASE_URL, should return statusCode 200, res.body.length === 1", asy
         expect(res.body).toBeDefined()
         expect(res.body).toHaveLength(1)
         // expect(res.body.length).toBe(1)
+
+        // console.log(res.body)
+
+        expect(res.body[0].students).toBeDefined()
+        expect(res.body[0].students).toHaveLength(0)
 })
 
     // GET (getOne)
@@ -42,12 +50,18 @@ test("GET -> BASE_URL/courseId, should return statusCode 200, res.body.name === 
         expect(res.statusCode).toBe(200)
         expect(res.body).toBeDefined()
         expect(res.body.name).toBe(course.name)
+
+        // console.log(res.body)
+
+        expect(res.body.students).toBeDefined()
+        expect(res.body.students).toHaveLength(0)
 })
 
     // PUT (Update)
 test("PUT -> BASE_URL/courseId, should return statusCode 200, res.body.name === coursetUpdate.name", async() => {
     const courseUpdate = {
-        name: "Philosophy"
+        name: "Philosophy",
+        credits: 5
     }
 
     const res = await request(app)
@@ -57,6 +71,34 @@ test("PUT -> BASE_URL/courseId, should return statusCode 200, res.body.name === 
         expect(res.status).toBe(200)
         expect(res.body).toBeDefined()
         expect(res.body.name).toBe(courseUpdate.name)
+        expect(res.body.credits).toBe(courseUpdate.credits)
+})
+
+    // POST (SetStudents)
+test("POST -> BASE/courses/:id/students, should return statusCode 200, and res.body.courses.length === 1", async() => {
+    const student = {
+        firstName: "Harry",
+        lastName: "Potter",
+        birthday: "2020-02-20",
+        program: "Magical Defense",
+    }
+
+    const studentTester = await Student.create(student)
+
+    const res = await request(app)
+        .post(`${BASE_URL}/${courseId}/students`)
+        .send([studentTester.id])
+
+        // console.log(res.body)
+        // console.log(res.body[0].courseStudent)
+
+        expect(res.status).toBe(200)
+        expect(res.body).toBeDefined()
+        expect(res.body).toHaveLength(1)
+        expect(res.body[0].id).toBeDefined()
+        expect(res.body[0].id).toBe(studentTester.id)
+
+    await studentTester.destroy()
 })
 
     // DELETE (Delete)
